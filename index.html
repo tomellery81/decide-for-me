@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Decide For Me — V2</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+<header>
+  <button class="logo" onclick="go('home')">DECIDE <b>FOR ME</b></button>
+  <div class="header-actions">
+    <div class="stat"><small>STREAK</small><strong id="streak">0 🔥</strong></div>
+    <div class="stat"><small>XP</small><strong id="xp">0</strong></div>
+    <div class="menu-wrap">
+      <button class="profile-pill" id="profileBtn" onclick="openProfile()">👤 <span id="profileLabel">SIGN IN</span></button>
+      <button class="icon-btn" id="menuBtn" onclick="toggleMenu()" aria-label="Open menu">☰</button>
+      <div class="dropdown-menu hidden" id="mainMenu">
+        <button onclick="go('home');closeMenu()">🎲 Play</button>
+        <button onclick="go('wall');closeMenu()">🔥 The Wall</button>
+        <button onclick="openProfile();closeMenu()">👤 My Profile</button>
+        <button onclick="go('admin');closeMenu()">⚙ Mission Manager</button>
+        <button onclick="openChallengeModal();closeMenu()">＋ Add Mission</button>
+        <button onclick="exportDB();closeMenu()">⇩ Export Database</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- HOME -->
+<section id="home" class="view active">
+  <div class="eyebrow">STOP OVERTHINKING. START ROLLING.</div>
+  <h1>Let Fate choose<br><span>what you do next.</span></h1>
+  <p>Roll the die. Fate chooses an area of your life. Choose your difficulty. Spin the wheel. Complete the mission.</p>
+  <div class="daily" id="dailyStatus">☀️ Your daily roll is waiting.</div>
+  <div class="dice-wrap"><div id="dice" class="dice"><span>?</span></div></div>
+  <button class="btn primary" id="rollBtn">🎲 Let Fate decide</button>
+  <div class="categories">
+    <div>❤️<small>Relationships</small></div><div>💰<small>Finance</small></div>
+    <div>💼<small>Work</small></div><div>🎉<small>Entertainment</small></div>
+    <div>📋<small>Life Admin</small></div><div>🧹<small>Chores</small></div>
+  </div>
+</section>
+
+<!-- DIFFICULTY -->
+<section id="difficulty" class="view">
+  <button class="back" onclick="go('home')">← Back</button>
+  <div class="eyebrow">FATE DECIDED</div>
+  <div class="number" id="rollNumber">1</div>
+  <h2 id="categoryName"></h2>
+  <p>How much chaos are you willing to accept?</p>
+  <div class="difficulty-grid">
+    <button onclick="chooseDifficulty('easy')"><i>🟢</i><b>Easy</b><small>Quick win</small></button>
+    <button onclick="chooseDifficulty('normal')"><i>🔵</i><b>Normal</b><small>Worth doing</small></button>
+    <button onclick="chooseDifficulty('mission')"><i>🟠</i><b>Mission</b><small>Push yourself</small></button>
+    <button onclick="chooseDifficulty('brutal')"><i>🔴</i><b>Brutal</b><small>No excuses</small></button>
+    <button onclick="chooseDifficulty('wild')"><i>🎲</i><b>Wild Card</b><small>Anything goes</small></button>
+  </div>
+</section>
+
+<!-- WHEEL -->
+<section id="wheelView" class="view">
+  <button class="back" onclick="go('difficulty')">← Back</button>
+  <div class="eyebrow" id="wheelTitle"></div>
+  <h2>Spin your mission</h2>
+  <p id="wheelCount"></p>
+  <div class="wheel-wrap"><div class="pointer">▼</div><canvas id="wheel" width="700" height="700"></canvas></div>
+  <button class="btn secondary" id="spinBtn">🎡 SPIN THE WHEEL</button>
+</section>
+
+<!-- MISSION -->
+<section id="mission" class="view">
+  <div class="mission-card">
+    <div class="accepted-status hidden" id="acceptedStatus">✓ MISSION ACCEPTED — THE WORLD IS WATCHING</div>
+    <div class="eyebrow">YOUR MISSION</div>
+    <div class="mission-divider"></div>
+    <div class="mission-stack">
+      <div class="mission-meta" id="missionCat"></div>
+      <div class="mission-meta difficulty-meta" id="missionBadge"></div>
+      <div class="mission-number" id="missionNumber"></div>
+      <h2 id="missionText"></h2>
+      <div class="mission-xp" id="missionXP"></div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn primary" id="acceptBtn" onclick="acceptMission()">✓ ACCEPT THE MISSION</button>
+    
+    <button class="btn success hidden" id="completeBtn" onclick="completeMission()">🏆 I DID IT — CONFIRM COMPLETION</button>
+    <button class="btn danger hidden" id="failBtn" onclick="failMission()">✕ I FAILED THIS MISSION</button>
+    <div><button class="link" onclick="reroll()">↻ Reroll <span id="rerollInfo"></span></button><button class="link danger" onclick="refuse()">✕ Refuse Fate</button></div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section id="proof" class="view">
+  <button class="back" onclick="go('mission')">← Back</button>
+  <div class="eyebrow">PROOF OF COMPLETION</div>
+  <h2>Did you really do it?</h2>
+  <p>Make your victory more believable. Add proof and earn bonus XP.</p>
+
+  <div class="proof-options" id="proofOptions">
+    <button class="proof-option" onclick="selectProof('text')"><span>✍️</span><b>Tell Us About It</b><small>Write what happened · +0 XP</small></button>
+    <button class="proof-option" onclick="selectProof('photo')"><span>📸</span><b>Photo Proof</b><small>Upload a photo · +25 XP</small></button>
+    <button class="proof-option" onclick="selectProof('video')"><span>🎥</span><b>Video Proof</b><small>Upload a short video · +50 XP</small></button>
+  </div>
+
+  <div class="proof-input hidden" id="textProof">
+    <textarea id="proofText" rows="5" maxlength="280" oninput="handleProofText()" placeholder="What happened? Tell the story..."></textarea>
+    <small><span id="charCount">0</span>/280 characters</small>
+  </div>
+
+  <div class="proof-input hidden" id="mediaProof">
+    <label class="media-upload" id="mediaUpload">
+      <input type="file" id="proofFile" accept="image/*,video/*" onchange="handleProofFile(event)">
+      <div id="uploadPrompt"><span>＋</span><b>Add your proof</b><small>Photo or short video</small></div>
+      <img id="proofImagePreview" class="hidden">
+      <video id="proofVideoPreview" class="hidden" controls></video>
+    </label>
+    <button class="remove-media hidden" id="removeMedia" onclick="removeProofMedia()">Remove media</button>
+  </div>
+
+  <div class="proof-selected hidden" id="proofSelected"></div>
+
+  <div class="publish-choice">
+    <div class="choice-title">WHAT HAPPENS TO YOUR PROOF?</div>
+    <button class="publish-option selected" data-publish="private" onclick="selectPublish('private')">
+      <span>🔒</span><b>Keep it Private</b><small>Only visible to you on this device</small>
+    </button>
+    <button class="publish-option" data-publish="public" onclick="selectPublish('public')">
+      <span>🌍</span><b>Post to The Wall</b><small>Get likes, unlock rewards and earn XP</small>
+    </button>
+  </div>
+
+  <button class="btn primary" id="finishProofBtn" onclick="finishWithProof()" disabled>COMPLETE & CREATE PROOF</button>
+  <button class="link" onclick="skipProof()">Skip proof — just trust me</button>
+</section>
+
+<!-- COMPLETE -->
+<section id="complete" class="view">
+  <div class="celebrate">🎉</div><div class="eyebrow">MISSION COMPLETE</div>
+  <h2>You did what the dice told you.</h2>
+  <div class="earned" id="earned"></div>
+  <div class="share-card" id="shareCard">
+    <div class="share-logo">DECIDE <b>FOR ME</b></div>
+    <div class="share-label">FATE DECIDED</div>
+    <div id="shareCat"></div><div class="share-mission" id="shareChallenge"></div>
+    <div class="share-proof hidden" id="shareProof">
+      <div class="proof-label">PROOF OF COMPLETION</div>
+      <img id="shareImage" class="hidden">
+      <video id="shareVideo" class="hidden" controls></video>
+      <div class="proof-story hidden" id="shareStory"></div>
+    </div>
+    <div class="share-stats"><span id="shareProofBadge">✓ VERIFIED BY THE DICE</span><span id="shareStreak"></span></div>
+    <div class="done">✓ COMPLETED</div>
+  </div>
+  <div class="actions">
+    <button class="btn secondary" onclick="shareResult()">↗ SHARE MY RESULT</button>
+    <button class="btn ghost" onclick="go('home')">ROLL AGAIN</button>
+  </div>
+</section>
+
+<!-- PROFILE -->
+<section id="profile" class="view">
+  <button class="back" onclick="go('home')">← Back</button>
+  <div class="eyebrow">YOUR ACCOUNT</div>
+  <div id="profileGuest">
+    <h2>Your Dice History Awaits</h2>
+    <p>Sign in to save your mission history across devices, track progress and build your completion record.</p>
+    <button class="btn primary" onclick="openAuth()">👤 SIGN IN / CREATE ACCOUNT</button>
+  </div>
+  <div id="profileAuthed" class="hidden">
+    <div class="profile-head"><div class="avatar">🎲</div><div><h2 id="profileName">Player</h2><p id="profileEmail"></p></div><button class="link" onclick="signOut()">Sign out</button></div>
+    <div class="profile-stats"><div><strong id="pAccepted">0</strong><small>ACCEPTED</small></div><div><strong id="pCompleted">0</strong><small>COMPLETED</small></div><div><strong id="pPassed">0</strong><small>PASSED</small></div><div><strong id="pFailed">0</strong><small>FAILED</small></div></div>
+    <div class="profile-tabs">
+      <button class="active" onclick="setProfileFilter('all',this)">ALL HISTORY</button>
+      <button onclick="setProfileFilter('accepted',this)">ACCEPTED</button>
+      <button onclick="setProfileFilter('completed',this)">COMPLETED</button>
+      <button onclick="setProfileFilter('declined',this)">DECLINED</button>
+      <button onclick="setProfileFilter('passed',this)">PASSED</button>
+      <button onclick="setProfileFilter('failed',this)">FAILED</button>
+    </div>
+    <div id="profileHistory" class="history-list"></div>
+    <h3 class="all-missions-title">ALL COMPLETED MISSIONS</h3>
+    <div id="completedChallenges" class="history-list"></div>
+  </div>
+</section>
+
+<!-- FATE WARNING MODAL -->
+<div id="fateModal" class="modal hidden">
+  <div class="modal-card fate-card">
+    <div class="fate-symbol">🎲</div>
+    <div class="eyebrow">FATE HAS BEEN IGNORED</div>
+    <h2>Are you sure?</h2>
+    <p id="fateWarningText"></p>
+    <div class="fate-strikes" id="fateStrikes"></div>
+    <button class="btn danger" onclick="confirmRefuse()">YES, I REFUSE FATE</button>
+    <button class="btn secondary" onclick="closeFateModal()">NO — I'LL ACCEPT MY FATE</button>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="modal hidden">
+ <div class="modal-card auth-card">
+  <button class="modal-close" onclick="closeAuth()">×</button>
+  <div class="eyebrow">DECIDE FOR ME</div>
+  <h2 id="authTitle">Welcome back</h2>
+  <p>Save your history and prove what the dice made you do.</p>
+  <input id="authEmail" type="email" placeholder="Email address">
+  <input id="authPassword" type="password" placeholder="Password (min. 6 characters)">
+  <button class="btn primary" onclick="authSignIn()">SIGN IN</button>
+  <button class="btn secondary" onclick="authSignUp()">CREATE ACCOUNT</button>
+  <div id="authMessage" class="auth-message"></div>
+ </div>
+</div>
+
+<!-- THE WALL -->
+<section id="wall" class="view">
+  <button class="back" onclick="go('home')">← Back to game</button>
+  <div class="eyebrow">THE COMMUNITY</div>
+  <h2>🔥 THE WALL OF CHAOS</h2>
+  <p class="wall-intro">Real people. Real dice rolls. Allegedly completed.</p>
+
+  <div class="wall-hero-stats">
+    <div><strong id="wallPosts">0</strong><small>POSTS</small></div>
+    <div><strong id="wallLikes">0</strong><small>VALIDATIONS</small></div>
+    <div><strong id="wallUnlocked">0</strong><small>REWARDS UNLOCKED</small></div>
+  </div>
+
+  <div class="wall-tabs">
+    <button class="active" onclick="setWallFilter('all',this)">ALL</button>
+    <button onclick="setWallFilter('relationships',this)">❤️</button>
+    <button onclick="setWallFilter('finance',this)">💰</button>
+    <button onclick="setWallFilter('work',this)">💼</button>
+    <button onclick="setWallFilter('entertainment',this)">🎉</button>
+    <button onclick="setWallFilter('life-admin',this)">📋</button>
+    <button onclick="setWallFilter('chores',this)">🧹</button>
+  </div>
+  <div id="wallFeed" class="wall-feed"></div>
+</section>
+
+<!-- POST RESULT -->
+<section id="postResult" class="view">
+  <div class="eyebrow">PUBLIC POST CREATED</div>
+  <div class="post-result-icon">🚀</div>
+  <h2>Your proof is on The Wall!</h2>
+  <p>Now get people to validate that you actually did it.</p>
+  <div class="milestone-card">
+    <div class="milestone-label">NEXT REWARD</div>
+    <div class="milestone-progress"><div id="milestoneBar"></div></div>
+    <strong><span id="milestoneLikes">0</span> / 10 VALIDATIONS</strong>
+    <small>Unlock +100 BONUS XP at 10 likes</small>
+  </div>
+  <button class="btn primary" onclick="sharePost()">📤 SHARE YOUR PROOF</button>
+  <button class="link" onclick="go('wall')">View The Wall</button>
+</section>
+
+<!-- ADMIN -->
+<section id="admin" class="view admin">
+  <div class="admin-top"><div><div class="eyebrow">CONTENT MANAGEMENT</div><h2>Mission Manager</h2><p>Manually add, edit, delete, import or export every mission. Changes are saved automatically in this browser.</p></div>
+  <button class="btn ghost small-btn" onclick="go('home')">← PLAY GAME</button></div>
+
+  <div class="admin-tools">
+    <button class="btn mini" onclick="exportDB()">⇩ EXPORT DATABASE</button>
+    <label class="btn mini upload">⇧ IMPORT DATABASE<input type="file" accept=".json" onchange="importDB(event)"></label>
+    <button class="btn mini danger-btn" onclick="resetDB()">RESET TO STARTER DATA</button>
+  </div>
+
+  <div class="admin-summary" id="dbSummary"></div>
+  <div class="filters">
+    <select id="filterCategory" onchange="renderAdmin()"></select>
+    <select id="filterDifficulty" onchange="renderAdmin()"></select>
+    <input id="searchChallenges" placeholder="Search missions..." oninput="renderAdmin()">
+  </div>
+  <div id="challengeList" class="mission-list"></div>
+</section>
+</main>
+
+<footer>Small rolls. Big changes.</footer>
+</div>
+
+<!-- Mission modal -->
+<div id="modal" class="modal hidden">
+ <div class="modal-box">
+  <button class="close" onclick="closeModal()">×</button>
+  <h3 id="modalTitle">Add Mission</h3>
+  <input type="hidden" id="editId">
+  <label>Category<select id="editCategory"></select></label>
+  <label>Difficulty<select id="editDifficulty"></select></label>
+  <label>Mission<textarea id="editText" rows="5" placeholder="Write the mission..."></textarea></label>
+  <button class="btn primary" onclick="saveChallenge()">SAVE MISSION</button>
+ </div>
+</div>
+
+<script src="starter-data.js"></script>
+<script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</body></html>

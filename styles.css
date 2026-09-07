@@ -1,0 +1,231 @@
+:root{--bg:#071019;--panel:#0d1824;--panel2:#101e2c;--text:#f7f7f4;--muted:#95a5b2;--cyan:#65f4f2;--pink:#ff5c9d;--yellow:#ffd84d;--green:#66e68a;--red:#ff6b6b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 5%,#12303b 0,transparent 28%),radial-gradient(circle at 90% 15%,#31182a 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}.app{width:min(1150px,100%);margin:auto;min-height:100vh;padding:18px 24px 36px;display:flex;flex-direction:column}header{display:flex;justify-content:space-between;align-items:center}.logo{font-size:30px;font-weight:1000;letter-spacing:-2px;color:white;background:none;border:0;cursor:pointer}.logo b,.share-logo b{background:var(--cyan);color:#071019;padding:2px 7px}.header-actions{display:flex;gap:9px;align-items:center}.stat{background:#ffffff0b;border:1px solid #ffffff12;border-radius:13px;padding:6px 11px;text-align:center}.stat small{font-size:9px;color:var(--muted);display:block;font-weight:800}.stat strong{font-size:14px}.icon-btn{border:1px solid #ffffff15;background:#ffffff0b;color:white;border-radius:12px;font-size:20px;padding:7px 10px;cursor:pointer}main{flex:1;display:grid;place-items:center}.view{display:none;width:100%;text-align:center;animation:in .3s ease}.view.active{display:block}@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.eyebrow{font-size:11px;color:var(--cyan);font-weight:1000;letter-spacing:2px;margin-top:35px}h1{font-size:clamp(48px,8vw,90px);letter-spacing:-6px;line-height:.9;margin:16px 0}h1 span{color:var(--cyan)}h2{font-size:clamp(36px,6vw,62px);letter-spacing:-4px;margin:12px 0 18px;line-height:1}p{color:#c1cbd3;font-size:17px;line-height:1.55;max-width:680px;margin:0 auto 20px}.daily{display:inline-block;background:#ffffff0a;border:1px solid #ffffff12;border-radius:99px;padding:8px 14px;font-size:12px;color:#d8e2e8}.dice-wrap{width:190px;height:190px;margin:25px auto;display:grid;place-items:center}.dice{width:140px;height:140px;background:linear-gradient(145deg,#fff,#d7e5e8);color:#071019;border-radius:28px;display:grid;place-items:center;box-shadow:inset -12px -12px 25px #0002,0 22px 55px #0008;transform:rotate(-7deg)}.dice span{font-size:72px;font-weight:1000}.rolling{animation:roll .75s ease}@keyframes roll{25%{transform:rotate(90deg) scale(.85)}60%{transform:rotate(250deg) scale(1.1)}100%{transform:rotate(353deg)}}.btn{border:0;border-radius:16px;padding:16px 25px;min-width:220px;font-weight:1000;cursor:pointer;transition:.15s}.btn:hover{transform:translateY(-2px)}.primary{background:var(--cyan);color:#061019}.secondary{background:var(--pink);color:white}.success{background:var(--green);color:#071019}.ghost{background:transparent;border:1px solid #ffffff22;color:white}.categories{max-width:700px;margin:35px auto;display:grid;grid-template-columns:repeat(6,1fr);gap:8px}.categories div{background:#ffffff08;border:1px solid #ffffff0d;border-radius:15px;padding:13px;font-size:22px}.categories small{display:block;font-size:9px;color:#c9d2d8;margin-top:5px;font-weight:800}.back{float:left;margin-top:25px;background:none;border:0;color:var(--muted);cursor:pointer}.number{font-size:100px;font-weight:1000;color:var(--pink);line-height:.9}.difficulty-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:30px auto}.difficulty-grid button{background:#ffffff08;color:white;border:1px solid #ffffff10;border-radius:18px;padding:22px 8px;cursor:pointer}.difficulty-grid button:hover{background:#ffffff12;transform:translateY(-4px)}.difficulty-grid i{font-style:normal;font-size:30px;display:block}.difficulty-grid b,.difficulty-grid small{display:block}.difficulty-grid small{color:var(--muted);margin-top:5px}.wheel-wrap{width:min(580px,88vw);aspect-ratio:1;margin:20px auto;position:relative}.pointer{position:absolute;z-index:2;left:50%;top:-16px;transform:translateX(-50%);font-size:36px}canvas{width:100%;height:100%;filter:drop-shadow(0 25px 45px #0009);transition:transform 4.4s cubic-bezier(.1,.7,.05,1)}.mission-card,.share-card{max-width:760px;margin:auto;background:radial-gradient(circle at 50% 0,#65f4f215,transparent 42%),var(--panel);border:1px solid #ffffff12;border-radius:28px;padding:42px 28px;box-shadow:0 25px 70px #0008}.mission-card h2{max-width:680px;margin:15px auto;font-size:clamp(35px,5vw,60px)}.badge,.chips span{display:inline-block;padding:7px 11px;border-radius:99px;background:#ffffff0b;border:1px solid #ffffff12;font-size:12px;font-weight:900}.chips{display:flex;justify-content:center;gap:9px;flex-wrap:wrap}.actions{margin-top:22px;display:grid;gap:12px;justify-items:center}.link{background:none;border:0;color:var(--muted);font-weight:800;padding:10px;cursor:pointer}.danger{color:#ff9696}.hidden{display:none}.celebrate{font-size:80px}.earned{font-size:45px;color:var(--yellow);font-weight:1000;margin-bottom:20px}.share-card{width:min(520px,95vw);min-height:420px;text-align:left;display:flex;flex-direction:column;justify-content:center}.share-logo{font-size:22px;font-weight:1000}.share-label{font-size:10px;color:var(--muted);letter-spacing:2px;margin-top:55px}.share-card #shareCat{color:var(--pink);font-weight:900;margin:15px 0}.share-challenge{font-size:clamp(30px,5vw,50px);font-weight:1000;letter-spacing:-3px;line-height:1.03}.done{margin-top:45px;color:var(--green);font-weight:1000}.admin{text-align:left;max-width:1100px}.admin-top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px}.admin-top .eyebrow{margin-top:10px}.admin h2{font-size:50px}.admin p{margin:0;max-width:600px}.small-btn{min-width:auto;padding:12px 16px}.admin-tools{display:flex;flex-wrap:wrap;gap:9px;margin:28px 0}.mini{min-width:auto;padding:11px 15px;font-size:12px;background:#ffffff0d;color:white;border:1px solid #ffffff18}.danger-btn{color:#ff9999}.upload input{display:none}.admin-summary{padding:14px;background:#ffffff08;border:1px solid #ffffff10;border-radius:14px;margin-bottom:14px;color:#cdd7dd}.filters{display:grid;grid-template-columns:1fr 1fr 2fr;gap:9px;margin-bottom:12px}.filters select,.filters input,.modal select,.modal textarea{width:100%;padding:12px;background:#09131d;color:white;border:1px solid #ffffff18;border-radius:10px}.challenge-list{display:grid;gap:8px}.challenge-row{display:grid;grid-template-columns:140px 115px 1fr auto;gap:10px;align-items:center;padding:13px 15px;background:#ffffff07;border:1px solid #ffffff0d;border-radius:14px}.tag{font-size:11px;font-weight:900}.diff{color:var(--cyan);font-size:11px}.challenge-actions button{background:none;border:0;color:white;cursor:pointer;font-size:16px;padding:6px}.modal{position:fixed;inset:0;background:#000a;z-index:10;display:grid;place-items:center;padding:20px}.modal-box{width:min(600px,100%);background:#0c1824;border:1px solid #ffffff1a;border-radius:22px;padding:28px;position:relative;box-shadow:0 30px 90px #000}.modal h3{font-size:30px;margin:0 0 20px}.modal label{display:block;color:#b7c4cd;font-size:12px;font-weight:900;margin:14px 0}.close{position:absolute;right:15px;top:12px;background:none;border:0;color:white;font-size:28px;cursor:pointer}footer{text-align:center;color:#657785;font-size:11px;padding-top:30px}footer button{background:none;border:0;color:#718391;cursor:pointer}@media(max-width:700px){.app{padding:14px}.categories{grid-template-columns:repeat(3,1fr)}.difficulty-grid{grid-template-columns:repeat(2,1fr)}.difficulty-grid button:last-child{grid-column:1/-1}.filters{grid-template-columns:1fr}.challenge-row{grid-template-columns:1fr}.admin-top{align-items:flex-start;flex-direction:column}.admin h2{font-size:42px}h1{letter-spacing:-4px}.header-actions .stat{display:none}}
+/* V2.1 Navigation: keep content tools out of the gameplay experience */
+.menu-wrap{position:relative}
+.dropdown-menu{position:absolute;right:0;top:48px;width:220px;padding:8px;background:#101e2c;border:1px solid #ffffff18;border-radius:14px;box-shadow:0 18px 50px #0009;z-index:20;text-align:left}
+.dropdown-menu.hidden{display:none}
+.dropdown-menu button{display:block;width:100%;padding:11px 12px;border:0;border-radius:9px;background:transparent;color:#e8eef2;text-align:left;font-size:13px;font-weight:750;cursor:pointer}
+.dropdown-menu button:hover{background:#ffffff10}
+
+/* Critical modal fix: the Add Challenge dialog must never appear unless explicitly opened */
+#modal.hidden { display: none !important; }
+#modal:not(.hidden) { display: grid; }
+
+/* VERSION 3 — PROOF OF COMPLETION */
+.proof-options{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:800px;margin:30px auto}
+.proof-option{background:#ffffff08;border:1px solid #ffffff12;color:white;border-radius:20px;padding:25px 15px;cursor:pointer;transition:.2s}
+.proof-option:hover,.proof-option.selected{border-color:var(--cyan);background:#65f4f212;transform:translateY(-3px)}
+.proof-option span{font-size:38px;display:block;margin-bottom:10px}.proof-option b,.proof-option small{display:block}.proof-option small{color:var(--muted);margin-top:7px;font-size:11px}
+.proof-input{max-width:650px;margin:20px auto;text-align:left}.proof-input textarea{width:100%;background:#ffffff08;border:1px solid #ffffff18;color:white;border-radius:16px;padding:16px;font:inherit;resize:vertical}.proof-input>small{display:block;text-align:right;color:var(--muted);margin-top:5px}
+.media-upload{display:block;cursor:pointer;border:2px dashed #ffffff28;border-radius:22px;min-height:250px;overflow:hidden;background:#ffffff06;position:relative}.media-upload:hover{border-color:var(--cyan)}.media-upload input{display:none}
+#uploadPrompt{height:250px;display:grid;place-content:center;text-align:center;gap:7px}.media-upload #uploadPrompt span{font-size:48px;color:var(--cyan)}.media-upload b,.media-upload small{display:block}.media-upload small{color:var(--muted)}
+.media-upload img,.media-upload video{width:100%;max-height:450px;object-fit:contain;background:#000;display:block}.remove-media{margin-top:8px;background:none;border:0;color:#ff9999;cursor:pointer}
+.proof-selected{max-width:650px;margin:15px auto;color:var(--green);font-weight:800}
+#finishProofBtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.share-proof{margin-top:25px;border-radius:14px;overflow:hidden;background:#0008}.proof-label{font-size:9px;letter-spacing:2px;color:var(--cyan);font-weight:1000;padding:10px 12px;background:#ffffff0b}.share-proof img,.share-proof video{width:100%;max-height:280px;object-fit:cover;display:block}.proof-story{padding:16px;color:#dbe5eb;font-size:16px;line-height:1.5;font-style:italic}.share-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}.share-stats span{font-size:10px;font-weight:900;padding:7px 10px;border-radius:99px;background:#ffffff0b;border:1px solid #ffffff12}.share-stats span:first-child{color:var(--green)}
+@media(max-width:700px){.proof-options{grid-template-columns:1fr}.proof-option{padding:18px;display:grid;grid-template-columns:55px 1fr;text-align:left;align-items:center}.proof-option span{grid-row:span 2;margin:0}.proof-option small{grid-column:2}}
+
+/* V3.1 proof reliability fixes */
+.hidden { display:none !important; }
+.proof-input:not(.hidden), .proof-selected:not(.hidden) { display:block !important; }
+#finishProofBtn:not(:disabled) { opacity:1; }
+
+/* V4 — THE WALL & VIRAL VALIDATION */
+.publish-choice{max-width:650px;margin:24px auto;display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left}
+.choice-title{grid-column:1/-1;text-align:center;font-size:10px;font-weight:1000;letter-spacing:2px;color:var(--muted);margin-bottom:2px}
+.publish-option{padding:15px;border-radius:14px;border:1px solid #ffffff18;background:#ffffff06;color:white;text-align:left;cursor:pointer}
+.publish-option.selected{border-color:var(--cyan);background:#65f4f210}.publish-option span{font-size:24px;float:left;margin-right:10px}.publish-option b,.publish-option small{display:block}.publish-option small{color:var(--muted);font-size:10px;margin-top:3px}
+.wall-intro{color:var(--muted)}.wall-hero-stats{display:flex;justify-content:center;gap:12px;margin:25px auto;max-width:700px}.wall-hero-stats div{flex:1;background:#ffffff06;border:1px solid #ffffff10;border-radius:16px;padding:18px}.wall-hero-stats strong,.wall-hero-stats small{display:block}.wall-hero-stats strong{font-size:26px;color:var(--cyan)}.wall-hero-stats small{font-size:9px;letter-spacing:1px;color:var(--muted);margin-top:5px}
+.wall-tabs{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:20px 0}.wall-tabs button{border:1px solid #ffffff14;background:#ffffff08;color:white;border-radius:999px;padding:8px 12px;cursor:pointer}.wall-tabs button.active{background:var(--cyan);color:#071019}
+.wall-feed{max-width:760px;margin:auto;display:grid;gap:16px;text-align:left}.wall-post{background:#ffffff06;border:1px solid #ffffff12;border-radius:20px;padding:18px;overflow:hidden}.post-meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:11px}.post-category{color:var(--cyan);font-weight:900;letter-spacing:1px}.post-challenge{font-size:19px;font-weight:800;line-height:1.3;margin:12px 0}.post-proof{border-radius:12px;overflow:hidden;background:#071019;margin:12px 0}.post-proof img,.post-proof video{width:100%;max-height:380px;object-fit:cover;display:block}.post-story{padding:14px;font-style:italic;color:#dce5ea}.post-footer{display:flex;align-items:center;gap:10px;margin-top:14px}.validate-btn{border:0;background:#ff5c9d;color:white;border-radius:999px;padding:10px 15px;font-weight:900;cursor:pointer}.validate-btn.done{background:#ffffff15;color:var(--muted)}.post-reward{margin-left:auto;font-size:10px;color:var(--muted)}
+.post-result-icon{font-size:72px;margin:20px}.milestone-card{max-width:500px;margin:25px auto;padding:25px;border-radius:20px;background:#ffffff07;border:1px solid #ffffff14}.milestone-label{font-size:10px;letter-spacing:2px;color:var(--cyan);font-weight:1000;margin-bottom:12px}.milestone-progress{height:12px;background:#ffffff10;border-radius:99px;overflow:hidden;margin:15px 0}.milestone-progress div{height:100%;width:0;background:linear-gradient(90deg,var(--cyan),#ff5c9d);transition:.5s}.milestone-card small{display:block;color:var(--muted);margin-top:8px}
+@media(max-width:700px){.publish-choice{grid-template-columns:1fr}.wall-hero-stats{gap:6px}.wall-hero-stats div{padding:12px 5px}.wall-hero-stats strong{font-size:20px}}
+
+/* V4.1 — 20-option wheel improvements */
+#wheel {
+  max-width: min(92vw, 700px);
+  height: auto;
+}
+
+@media (max-width:700px){
+  #wheel {
+    width: min(94vw, 580px);
+    max-width: 94vw;
+  }
+}
+
+/* V4.3 — Number-only challenge wheel */
+#wheel { image-rendering: auto; }
+
+/* V5 — ACCOUNTS & PROFILE */
+.profile-pill{background:#ffffff0b;border:1px solid #ffffff18;color:#fff;border-radius:999px;padding:8px 12px;font-size:11px;font-weight:800;cursor:pointer}
+.challenge-number{font-family:ui-monospace,SFMono-Regular,monospace;color:var(--cyan);font-weight:900;letter-spacing:2px;margin:8px 0 14px}
+.accepted-status{color:var(--green);font-weight:900;font-size:12px;letter-spacing:1px;margin:14px 0}
+.btn.danger{background:#b83754;color:white}
+.profile-head{max-width:800px;margin:20px auto;display:flex;align-items:center;gap:16px;text-align:left}.profile-head .link{margin-left:auto}.avatar{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:#ffffff10;font-size:30px}
+.profile-stats{max-width:850px;margin:24px auto;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.profile-stats div{background:#ffffff07;border:1px solid #ffffff12;border-radius:16px;padding:16px}.profile-stats strong,.profile-stats small{display:block}.profile-stats strong{font-size:26px;color:var(--cyan)}.profile-stats small{font-size:9px;color:var(--muted);margin-top:5px}
+.profile-tabs{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:25px 0}.profile-tabs button{background:#ffffff08;border:1px solid #ffffff16;color:#fff;padding:8px 11px;border-radius:999px;font-size:10px;font-weight:800;cursor:pointer}.profile-tabs .active{background:var(--cyan);color:#071019}
+.history-list{max-width:900px;margin:0 auto;display:grid;gap:10px;text-align:left}.history-row{display:grid;grid-template-columns:140px 1fr 100px 110px;gap:14px;align-items:center;background:#ffffff06;border:1px solid #ffffff10;border-radius:14px;padding:14px}.history-number{color:var(--cyan);font:800 12px ui-monospace,SFMono-Regular,monospace}.history-name{font-weight:700}.status-pill{font-size:9px;font-weight:900;letter-spacing:1px;padding:7px 9px;border-radius:99px;text-align:center;background:#ffffff0d}.status-completed{color:var(--green)}.status-failed,.status-declined{color:#ff8da6}.status-accepted{color:var(--cyan)}.status-passed{color:#ffd84d}.all-challenges-title{max-width:900px;margin:45px auto 15px;text-align:left}
+.auth-card{max-width:440px}.auth-card input{display:block;width:100%;box-sizing:border-box;margin:10px 0;padding:14px;border-radius:12px;border:1px solid #ffffff1c;background:#ffffff08;color:white;font:inherit}.auth-card .btn{width:100%;margin-top:8px}.auth-message{min-height:22px;color:var(--cyan);font-size:12px;margin-top:12px}
+.empty-history{padding:30px;color:var(--muted);text-align:center;background:#ffffff05;border-radius:14px}
+@media(max-width:700px){.profile-pill span{display:none}.profile-stats{grid-template-columns:repeat(2,1fr)}.history-row{grid-template-columns:1fr;gap:6px}.history-row .status-pill{justify-self:start}}
+
+/* V5.2 Fate consequences */
+.fate-card{text-align:center;max-width:480px;border:1px solid #ff5c9d55}.fate-symbol{font-size:64px;margin-bottom:8px}.fate-strikes{display:flex;justify-content:center;gap:10px;margin:20px 0}.fate-strike{width:42px;height:8px;border-radius:99px;background:#ffffff14}.fate-strike.used{background:#ff5c9d;box-shadow:0 0 10px #ff5c9d77}
+
+
+/* V5.3 — Challenge accepted presentation */
+#fateModal .modal-card{
+  background:#000 !important;
+  opacity:1 !important;
+}
+#fateModal{
+  background:#000 !important;
+}
+#fateModal .modal-card::before,
+#fateModal .modal-card::after{display:none !important;}
+
+.mission-stack{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:12px;
+  width:100%;
+}
+#missionText{
+  text-align:center;
+  margin:4px auto 8px;
+}
+#missionCat,
+#missionBadge,
+#missionNumber,
+#missionXP{
+  text-align:center;
+  justify-content:center;
+}
+#missionCat{order:1;}
+#missionBadge{order:2;}
+#missionNumber{order:3;}
+#missionText{order:4;}
+#missionXP{order:5;}
+#acceptedStatus{
+  width:100%;
+  text-align:center;
+  margin:0 0 20px;
+  padding:12px 8px;
+  color:var(--green);
+  font-weight:900;
+  font-size:12px;
+  letter-spacing:1.1px;
+}
+
+
+/* V5.4 — Mission terminology and restored XP roundel */
+.mission-divider{
+  width:72px;
+  height:2px;
+  margin:12px auto 20px;
+  background:linear-gradient(90deg,transparent,var(--cyan),transparent);
+}
+.mission-xp,
+#missionXP{
+  width:76px;
+  height:76px;
+  min-width:76px;
+  border-radius:50%;
+  display:flex !important;
+  align-items:center;
+  justify-content:center;
+  background:rgba(101,244,242,.10);
+  border:2px solid var(--cyan);
+  color:var(--cyan);
+  font-weight:900;
+  font-size:14px;
+  letter-spacing:.5px;
+  box-shadow:0 0 24px rgba(101,244,242,.18), inset 0 0 18px rgba(101,244,242,.08);
+  margin:10px auto 0;
+}
+
+/* V5.5 — XP matches the existing Difficulty styling */
+.mission-stack #missionXP{
+  width:auto;
+  height:auto;
+  min-width:0;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  padding:8px 14px;
+  margin:0;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.16);
+  color:#fff;
+  box-shadow:none;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:1px;
+  line-height:1;
+}
+
+/* V5.7 — Remove erroneous cyan round decoration from mission screens */
+#mission .cyan-circle,
+#mission .mission-orb,
+#mission .side-orb,
+#mission .orb,
+#mission .roundel,
+#mission .mission-icon,
+#mission .mission-marker{
+  display:none !important;
+}
+/* Some earlier versions used pseudo-elements for the left decoration */
+#mission .card::before,
+#mission .card::after,
+#mission .mission-card::before,
+#mission .mission-card::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* V5.9 — Mission card structural fix
+   Removed duplicate mission elements that caused the empty left pill and cyan circle. */
+#mission .badge:empty,
+#mission .chips,
+#mission .chips span{
+  display:none !important;
+}
+
+#mission .mission-xp{
+  width:auto !important;
+  height:auto !important;
+  min-width:0 !important;
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px !important;
+  padding:7px 11px !important;
+  margin:0 !important;
+  background:#ffffff0b !important;
+  border:1px solid #ffffff12 !important;
+  color:#fff !important;
+  box-shadow:none !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  letter-spacing:0 !important;
+}
+
+
+/* V5.12 — Sign In modal matches the fully opaque Fate refusal modal */
+#authModal{
+  background:#000 !important;
+}
+#authModal .modal-card,
+#authModal .auth-card{
+  background:#000 !important;
+  opacity:1 !important;
+}
+#authModal .modal-card::before,
+#authModal .modal-card::after,
+#authModal .auth-card::before,
+#authModal .auth-card::after{
+  display:none !important;
+}

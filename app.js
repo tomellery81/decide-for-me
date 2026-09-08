@@ -4806,21 +4806,41 @@ function deleteWallPost(postId) {
 // Replace this with your real admin email address.
 // You can add more than one if needed.
 
+// =============================================
+// ADMIN ACCESS
+// =============================================
+
 const ADMIN_EMAILS = [
-  "tom.ellery@gmail.com"
+  "tom.ellery@gmail.com".trim().toLowerCase()
 ];
 
 
 function isAdmin() {
 
-  if (!currentUser?.email) {
+  // Get the currently signed-in email
+  const userEmail =
+    currentUser?.email
+      ?.trim()
+      ?.toLowerCase();
+
+
+  // Helpful debugging
+  console.log("Admin check:", {
+    currentUser,
+    userEmail,
+    adminEmails: ADMIN_EMAILS
+  });
+
+
+  if (!userEmail) {
+
     return false;
+
   }
 
 
   return ADMIN_EMAILS.includes(
-    currentUser.email
-      .toLowerCase()
+    userEmail
   );
 
 }
@@ -4830,7 +4850,42 @@ function isAdmin() {
 // OPEN ADMIN SAFELY
 // =============================================
 
-function openAdmin() {
+async function openAdmin() {
+
+  // Refresh the user directly from Supabase
+  // rather than relying only on currentUser.
+
+  try {
+
+    if (
+      typeof supabaseClient !== "undefined" &&
+      supabaseClient
+    ) {
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient.auth.getUser();
+
+
+      if (!error && data?.user) {
+
+        currentUser = data.user;
+
+      }
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "Could not refresh user for admin check:",
+      error
+    );
+
+  }
+
 
   if (!currentUser) {
 
@@ -4847,8 +4902,13 @@ function openAdmin() {
 
   if (!isAdmin()) {
 
+    console.warn(
+      "Admin access denied for:",
+      currentUser.email
+    );
+
     alert(
-      "You do not have permission to access the Admin Console."
+      `You do not have permission to access the Admin Console.\n\nSigned in as: ${currentUser.email || "Unknown email"}`
     );
 
     return;

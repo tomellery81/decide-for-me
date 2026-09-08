@@ -311,6 +311,8 @@ function shuffle(array) {
 // =============================================
 
 let missionCache = [];
+let missionLoadPromise = null;
+let missionsLoadedForUserId = null;
 
 
 function db() {
@@ -368,169 +370,95 @@ function db() {
 // LOAD MISSIONS FROM SUPABASE
 // =============================================
 
-async function loadMissionsFromSupabase() {
+async function loadMissionsFromSupabase(force = false) {
 
   if (!supabaseClient) {
-
-    console.warn(
-      "Supabase unavailable — using fallback Mission data."
-    );
-
+    console.warn("Supabase unavailable — using fallback Mission data.");
     return false;
-
   }
 
-  try {
+  const userId = currentUser?.id || null;
 
-    // Load first 1,000 Missions
+  // Prevent duplicate simultaneous loads.
+  if (missionLoadPromise) {
+    return missionLoadPromise;
+  }
 
-    const {
-      data: batchOne,
-      error: errorOne
-    } = await supabaseClient
-      .from("missions")
-      .select("id, category, difficulty, text")
-      .eq("active", true)
-      .order("id", {
-        ascending: true
-      })
-      .range(0, 999);
+  // Avoid unnecessary repeat loads for the same user.
+  if (
+    !force &&
+    missionCache.length > 0 &&
+    missionsLoadedForUserId === userId
+  ) {
+    return true;
+  }
 
+  missionLoadPromise = (async () => {
 
-    if (errorOne) {
-      throw errorOne;
-    }
+    try {
 
+      const { data: batchOne, error: errorOne } =
+        await supabaseClient
+          .from("missions")
+          .select("id, category, difficulty, text")
+          .eq("active", true)
+          .order("id", { ascending: true })
+          .range(0, 999);
 
-    console.log(
-      `Loaded first batch: ${batchOne?.length || 0} Missions`
-    );
+      if (errorOne) throw errorOne;
 
+      const { data: batchTwo, error: errorTwo } =
+        await supabaseClient
+          .from("missions")
+          .select("id, category, difficulty, text")
+          .eq("active", true)
+          .order("id", { ascending: true })
+          .range(1000, 1999);
 
-    // Load remaining Missions
+      if (errorTwo) throw errorTwo;
 
-    const {
-      data: batchTwo,
-      error: errorTwo
-    } = await supabaseClient
-      .from("missions")
-      .select("id, category, difficulty, text")
-      .eq("active", true)
-      .order("id", {
-        ascending: true
-      })
-      .range(1000, 1999);
+      const allMissions = [
+        ...(batchOne || []),
+        ...(batchTwo || [])
+      ];
 
+      if (allMissions.length > 0) {
 
-    if (errorTwo) {
-      throw errorTwo;
-    }
+        missionCache = allMissions;
+        missionsLoadedForUserId = userId;
 
+        console.log(
+          `Loaded ${missionCache.length} Missions from Supabase.`
+        );
 
-    console.log(
-      `Loaded second batch: ${batchTwo?.length || 0} Missions`
-    );
+        return true;
+      }
 
-
-    // Combine both batches
-
-    const allMissions = [
-      ...(batchOne || []),
-      ...(batchTwo || [])
-    ];
-
-
-    if (allMissions.length > 0) {
-
-      missionCache = allMissions;
-
-      console.log(
-        `Loaded ${missionCache.length} Missions from Supabase.`
+      console.warn(
+        "Supabase returned no Missions — using fallback data."
       );
 
-      return true;
+      return false;
+
+    } catch (error) {
+
+      console.warn(
+        "Could not load Missions from Supabase:",
+        error.message
+      );
+
+      return false;
+
+    } finally {
+
+      missionLoadPromise = null;
 
     }
 
+  })();
 
-    console.warn(
-      "Supabase returned no Missions — using fallback data."
-    );
-
-    return false;
-
-
-  } catch (error) {
-
-    console.warn(
-      "Could not load Missions from Supabase:",
-      error.message
-    );
-
-    return false;
-
-  }
-
+  return missionLoadPromise;
 }
-
-// =============================================
-// MISSION NUMBERING
-// =============================================
-
-const CATEGORY_PREFIX = {
-  relationships: "10",
-  finance: "20",
-  work: "30",
-  entertainment: "40",
-  "life-admin": "50",
-  chores: "60"
-};
-
-
-function challengeNumber(mission) {
-
-  const prefix =
-    CATEGORY_PREFIX[
-      mission.category
-    ] || "00";
-
-
-  const all = db().filter(
-    x => x.category === mission.category
-  );
-
-
-  const position =
-    all.findIndex(
-      x => x.id === mission.id
-    ) + 1;
-
-
-  return (
-    prefix +
-    "." +
-    String(
-      Math.max(position, 1)
-    ).padStart(6, "0")
-  );
-
-}
-
-
-// =============================================
-// SUPABASE CONFIGURATION
-// =============================================
-
-const SUPABASE_URL =
-  window.SUPABASE_URL || "";
-
-
-const SUPABASE_PUBLISHABLE_KEY =
-  window.SUPABASE_PUBLISHABLE_KEY || "";
-
-
-let supabaseClient = null;
-
 
 // =============================================
 // AUTHENTICATION STATE
@@ -626,31 +554,27 @@ if (
     });
 
 
-  // Listen for future authentication changes
+  // Listen for genuine future authentication changes.
+  // INITIAL_SESSION is ignored because getSession() handles startup.
 
- supabaseClient.auth.onAuthStateChange(
-  async (_event, session) => {
+  supabaseClient.auth.onAuthStateChange(
+    async (event, session) => {
 
-    currentUser =
-      session?.user || null;
+      currentUser = session?.user || null;
 
-    refreshAuthUI();
+      refreshAuthUI();
 
+      if (event === "SIGNED_IN" && currentUser) {
+        await loadMissionsFromSupabase();
+      }
 
-    // Load Missions once authentication is available
-
-    if (currentUser) {
-
-      await loadMissionsFromSupabase();
-
-    } else {
-
-      missionCache = [];
+      if (event === "SIGNED_OUT") {
+        missionCache = [];
+        missionsLoadedForUserId = null;
+      }
 
     }
-
-  }
-);
+  );
 
 } else {
 

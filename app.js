@@ -578,7 +578,24 @@ if (
       SUPABASE_PUBLISHABLE_KEY
     );
 
-// Restore existing login session
+// =============================================
+// LOAD CENTRAL MISSION DATABASE
+// =============================================
+
+loadMissionsFromSupabase()
+  .then(success => {
+
+    if (success) {
+
+      console.log(
+        "Central Mission database ready."
+      );
+
+    }
+
+  });
+
+  // Restore existing login session
 
   supabaseClient.auth
   .getSession()
@@ -3499,7 +3516,7 @@ function renderAdmin() {
   if ($("dbSummary")) {
 
     $("dbSummary").textContent =
-      `${data.length} total Missions • Showing ${filtered.length} • Stored locally in this browser`;
+      `${data.length} total Missions • Showing ${filtered.length} • Central Supabase database`;
 
   }
 
@@ -3651,108 +3668,114 @@ function editChallenge(id) {
 // SAVE MISSION
 // =============================================
 
-function saveChallenge() {
+async function saveChallenge() {
 
   const text =
     $("editText")
       ?.value
       .trim();
 
-
   if (!text) {
-
-    alert(
-      "Please enter a Mission."
-    );
-
+    alert("Please enter a Mission.");
     return;
-
   }
 
+  if (!supabaseClient || !currentUser) {
+    alert("You must be signed in to manage Missions.");
+    return;
+  }
 
-  let data =
-    db();
-
-
-  const id =
-    $("editId").value;
-
+  const id = $("editId").value;
 
   const record = {
-
-    id:
-      id ||
-      (
-        "mission_" +
-        Date.now()
-      ),
-
-    category:
-      $("editCategory").value,
-
-    difficulty:
-      $("editDifficulty").value,
-
-    text
-
+    id: id || ("mission_" + Date.now()),
+    category: $("editCategory").value,
+    difficulty: $("editDifficulty").value,
+    text,
+    active: true
   };
 
+  try {
 
-  if (id) {
+    let error;
 
-    data =
-      data.map(
-        mission =>
-          mission.id === id
-            ? record
-            : mission
-      );
+    if (id) {
+      ({ error } = await supabaseClient
+        .from("missions")
+        .update({
+          category: record.category,
+          difficulty: record.difficulty,
+          text: record.text,
+          active: true
+        })
+        .eq("id", id));
+    } else {
+      ({ error } = await supabaseClient
+        .from("missions")
+        .insert(record));
+    }
 
-  } else {
+    if (error) throw error;
 
-    data.unshift(record);
+    await loadMissionsFromSupabase();
 
+    closeModal();
+    renderAdmin();
+
+    alert(id
+      ? "Mission updated successfully."
+      : "Mission added successfully.");
+
+  } catch (error) {
+
+    console.error("Mission save failed:", error);
+
+    alert(
+      "Could not save Mission:\n\n" +
+      (error.message || "Unknown error")
+    );
   }
-
-
-  saveDB(data);
-
-
-  closeModal();
-
-
-  renderAdmin();
-
 }
-
 
 // =============================================
 // DELETE MISSION
 // =============================================
 
-function deleteChallenge(id) {
+async function deleteChallenge(id) {
 
-  if (
-    !confirm(
-      "Delete this Mission permanently?"
-    )
-  ) {
+  if (!confirm("Delete this Mission permanently?")) {
     return;
   }
 
+  if (!supabaseClient || !currentUser) {
+    alert("You must be signed in to manage Missions.");
+    return;
+  }
 
-  saveDB(
-    db().filter(
-      mission =>
-        mission.id !== id
-    )
-  );
+  try {
 
+    const { error } = await supabaseClient
+      .from("missions")
+      .delete()
+      .eq("id", id);
 
-  renderAdmin();
+    if (error) throw error;
 
+    await loadMissionsFromSupabase();
+    renderAdmin();
+
+    alert("Mission deleted successfully.");
+
+  } catch (error) {
+
+    console.error("Mission delete failed:", error);
+
+    alert(
+      "Could not delete Mission:\n\n" +
+      (error.message || "Unknown error")
+    );
+  }
 }
-
 
 // =============================================
 // EXPORT MISSION DATABASE
@@ -3806,26 +3829,16 @@ function exportDB() {
 
 function importDB(event) {
 
-  const file =
-    event.target.files?.[0];
-
-
+  const file = event.target.files?.[0];
   if (!file) return;
 
+  const reader = new FileReader();
 
-  const reader =
-    new FileReader();
-
-
-  reader.onload = () => {
+  reader.onload = async () => {
 
     try {
 
-      const data =
-        JSON.parse(
-          reader.result
-        );
-
+      const data = JSON.parse(reader.result);
 
       if (
         !Array.isArray(data) ||
@@ -3836,110 +3849,157 @@ function importDB(event) {
             item.text
         )
       ) {
-
-        throw new Error(
-          "Invalid database"
-        );
-
+        throw new Error("Invalid database");
       }
 
+      if (!confirm(
+        `Import ${data.length} Missions into the central Supabase database?\n\nExisting Missions with matching IDs will be updated.`
+      )) {
+        return;
+      }
 
-      saveDB(data);
+      if (!supabaseClient || !currentUser) {
+        throw new Error(
+          "You must be signed in to import Missions."
+        );
+      }
 
+      const importData = data.map((item, index) => ({
+        id:
+          item.id ||
+          ("mission_import_" + Date.now() + "_" + index),
+        category: item.category,
+        difficulty: item.difficulty,
+        text: item.text,
+        active: item.active !== false
+      }));
 
+      const batchSize = 200;
+
+      for (
+        let from = 0;
+        from < importData.length;
+        from += batchSize
+      ) {
+
+        const batch = importData.slice(
+          from,
+          from + batchSize
+        );
+
+        const { error } = await supabaseClient
+          .from("missions")
+          .upsert(batch, { onConflict: "id" });
+
+        if (error) throw error;
+      }
+
+      await loadMissionsFromSupabase();
       renderAdmin();
 
-
       alert(
-        `Imported ${data.length} Missions successfully.`
+        `Imported ${importData.length} Missions successfully into Supabase.`
       );
 
     } catch (error) {
 
+      console.error("Mission import failed:", error);
+
       alert(
-        "Invalid Mission database JSON file."
+        "Mission import failed:\n\n" +
+        (error.message || "Invalid Mission database JSON file.")
       );
 
-    }
+    } finally {
 
+      event.target.value = "";
+
+    }
   };
 
-
   reader.readAsText(file);
-
-
-  event.target.value =
-    "";
-
 }
-
 
 // =============================================
 // RESET DATABASE
 // =============================================
 
-function resetDB() {
+async function resetDB() {
 
-  if (
-    !confirm(
-      "This will erase all local Mission edits and restore all 1,200 starter Missions. Continue?"
-    )
-  ) {
+  if (!confirm(
+    "This will replace the central Mission database with the starter Missions.\n\nThis affects every user.\n\nContinue?"
+  )) {
     return;
   }
 
+  if (!supabaseClient || !currentUser) {
+    alert("You must be signed in to reset Missions.");
+    return;
+  }
 
-  // Remove the old locally stored database
+  try {
 
-  localStorage.removeItem(
-    "dfm_challenge_db"
-  );
+    const { error: deleteError } = await supabaseClient
+      .from("missions")
+      .delete()
+      .not("id", "is", null);
 
+    if (deleteError) throw deleteError;
 
-  // Explicitly save a fresh copy of the
-  // currently loaded starter database
-
-  const freshStarterData =
-    STARTER_CHALLENGES.map(
+    const starterData = STARTER_CHALLENGES.map(
       mission => ({
-        ...mission
+        id: mission.id,
+        category: mission.category,
+        difficulty: mission.difficulty,
+        text: mission.text,
+        active: true
       })
     );
 
+    const batchSize = 200;
 
-  saveDB(
-    freshStarterData
-  );
+    for (
+      let from = 0;
+      from < starterData.length;
+      from += batchSize
+    ) {
 
+      const batch = starterData.slice(
+        from,
+        from + batchSize
+      );
 
-  // Reset filters so all Missions are visible
+      const { error } = await supabaseClient
+        .from("missions")
+        .insert(batch);
 
-  if ($("filterCategory")) {
-    $("filterCategory").value = "";
+      if (error) throw error;
+    }
+
+    await loadMissionsFromSupabase();
+
+    if ($("filterCategory")) $("filterCategory").value = "";
+    if ($("filterDifficulty")) $("filterDifficulty").value = "";
+    if ($("searchChallenges")) $("searchChallenges").value = "";
+
+    renderAdmin();
+
+    alert(
+      `Starter database restored successfully.\n\n${missionCache.length} Missions loaded.`
+    );
+
+  } catch (error) {
+
+    console.error("Mission reset failed:", error);
+
+    alert(
+      "Could not reset Mission database:\n\n" +
+      (error.message || "Unknown error")
+    );
+
+    await loadMissionsFromSupabase();
   }
-
-
-  if ($("filterDifficulty")) {
-    $("filterDifficulty").value = "";
-  }
-
-
-  if ($("searchChallenges")) {
-    $("searchChallenges").value = "";
-  }
-
-
-  // Re-render the Admin Console
-
-  renderAdmin();
-
-
-  alert(
-    `Starter database restored successfully.\n\n${freshStarterData.length} Missions loaded.`
-  );
-
 }
-
 
 // =============================================
 // PROFILE

@@ -311,6 +311,42 @@ function shuffle(array) {
 // =============================================
 
 let missionCache = [];
+
+const CATEGORY_PREFIX = {
+  relationships: "10",
+  finance: "20",
+  work: "30",
+  entertainment: "40",
+  "life-admin": "50",
+  chores: "60"
+};
+
+// Stable display number derived from the mission's permanent ID.
+// This avoids numbering changing when missions are added, edited or deleted.
+function challengeNumber(mission) {
+
+  const prefix =
+    CATEGORY_PREFIX[mission?.category] || "00";
+
+  const numericId =
+    Number.parseInt(
+      String(mission?.id || "").replace(/\D/g, ""),
+      10
+    );
+
+  let position = 1;
+
+  if (Number.isFinite(numericId) && numericId > 0) {
+    position = ((numericId - 1) % 200) + 1;
+  }
+
+  return (
+    prefix +
+    "." +
+    String(position).padStart(6, "0")
+  );
+}
+
 let missionLoadPromise = null;
 let missionsLoadedForUserId = null;
 

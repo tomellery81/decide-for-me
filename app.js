@@ -364,7 +364,6 @@ function db() {
 
 }
 
-
 // =============================================
 // LOAD MISSIONS FROM SUPABASE
 // =============================================
@@ -381,56 +380,99 @@ async function loadMissionsFromSupabase() {
 
   }
 
-
   try {
-// Fetch all Missions in batches.
-// Supabase defaults to a maximum of 1,000 rows per request.
 
-const batchSize = 1000;
-let allMissions = [];
-let from = 0;
-let keepLoading = true;
+    // Load first 1,000 Missions
 
-while (keepLoading) {
-
-  const { data, error } =
-    await supabaseClient
+    const {
+      data: batchOne,
+      error: errorOne
+    } = await supabaseClient
       .from("missions")
       .select("id, category, difficulty, text")
       .eq("active", true)
       .order("id", {
         ascending: true
       })
-      .range(
-        from,
-        from + batchSize - 1
-      );
+      .range(0, 999);
 
-  if (error) {
-    throw error;
-  }
 
-  if (Array.isArray(data)) {
-
-    allMissions = allMissions.concat(data);
-
-    if (data.length < batchSize) {
-      keepLoading = false;
-    } else {
-      from += batchSize;
+    if (errorOne) {
+      throw errorOne;
     }
 
-  } else {
-    keepLoading = false;
+
+    console.log(
+      `Loaded first batch: ${batchOne?.length || 0} Missions`
+    );
+
+
+    // Load remaining Missions
+
+    const {
+      data: batchTwo,
+      error: errorTwo
+    } = await supabaseClient
+      .from("missions")
+      .select("id, category, difficulty, text")
+      .eq("active", true)
+      .order("id", {
+        ascending: true
+      })
+      .range(1000, 1999);
+
+
+    if (errorTwo) {
+      throw errorTwo;
+    }
+
+
+    console.log(
+      `Loaded second batch: ${batchTwo?.length || 0} Missions`
+    );
+
+
+    // Combine both batches
+
+    const allMissions = [
+      ...(batchOne || []),
+      ...(batchTwo || [])
+    ];
+
+
+    if (allMissions.length > 0) {
+
+      missionCache = allMissions;
+
+      console.log(
+        `Loaded ${missionCache.length} Missions from Supabase.`
+      );
+
+      return true;
+
+    }
+
+
+    console.warn(
+      "Supabase returned no Missions — using fallback data."
+    );
+
+    return false;
+
+
+  } catch (error) {
+
+    console.warn(
+      "Could not load Missions from Supabase:",
+      error.message
+    );
+
+    return false;
+
   }
 
 }
 
-
-// Use the complete Mission list
-
-const data = allMissions;
-    
 // =============================================
 // MISSION NUMBERING
 // =============================================

@@ -4807,7 +4807,7 @@ function deleteWallPost(postId) {
 // You can add more than one if needed.
 
 const ADMIN_EMAILS = [
-  "YOUR-ADMIN-EMAIL@example.com"
+  "tom.ellery@gmail.com"
 ];
 
 

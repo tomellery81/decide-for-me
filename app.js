@@ -3716,19 +3716,62 @@ function importDB(event) {
 function resetDB() {
 
   if (
-    confirm(
-      "This will erase all local Mission edits and restore the starter database. Continue?"
+    !confirm(
+      "This will erase all local Mission edits and restore all 1,200 starter Missions. Continue?"
     )
   ) {
+    return;
+  }
 
-    localStorage.removeItem(
-      "dfm_challenge_db"
+
+  // Remove the old locally stored database
+
+  localStorage.removeItem(
+    "dfm_challenge_db"
+  );
+
+
+  // Explicitly save a fresh copy of the
+  // currently loaded starter database
+
+  const freshStarterData =
+    STARTER_CHALLENGES.map(
+      mission => ({
+        ...mission
+      })
     );
 
 
-    renderAdmin();
+  saveDB(
+    freshStarterData
+  );
 
+
+  // Reset filters so all Missions are visible
+
+  if ($("filterCategory")) {
+    $("filterCategory").value = "";
   }
+
+
+  if ($("filterDifficulty")) {
+    $("filterDifficulty").value = "";
+  }
+
+
+  if ($("searchChallenges")) {
+    $("searchChallenges").value = "";
+  }
+
+
+  // Re-render the Admin Console
+
+  renderAdmin();
+
+
+  alert(
+    `Starter database restored successfully.\n\n${freshStarterData.length} Missions loaded.`
+  );
 
 }
 

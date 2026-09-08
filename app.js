@@ -307,7 +307,31 @@ function shuffle(array) {
 // LOCAL MISSION DATABASE
 // =============================================
 
+// =============================================
+// MISSION DATABASE
+// Supabase primary + local/starter fallback
+// =============================================
+
+let missionCache = [];
+
+
 function db() {
+
+  // PRIMARY SOURCE:
+  // Missions loaded from Supabase
+
+  if (
+    Array.isArray(missionCache) &&
+    missionCache.length > 0
+  ) {
+
+    return missionCache;
+
+  }
+
+
+  // FALLBACK:
+  // Existing local Mission database
 
   try {
 
@@ -318,59 +342,107 @@ function db() {
     );
 
 
-    // If there is no local database,
-    // use the starter Mission database.
-
     if (
-      !Array.isArray(storedData) ||
-      storedData.length === 0
+      Array.isArray(storedData) &&
+      storedData.length > 0
     ) {
 
-      return [...STARTER_CHALLENGES];
+      return storedData;
 
     }
-
-
-    // DATABASE VERSION CHECK
-    // If the local database is smaller than
-    // the current starter database, automatically
-    // upgrade it to the latest starter data.
-
-    if (
-      Array.isArray(STARTER_CHALLENGES) &&
-      STARTER_CHALLENGES.length > storedData.length
-    ) {
-
-      console.log(
-        `Mission database update detected: ${storedData.length} → ${STARTER_CHALLENGES.length}`
-      );
-
-
-      const updatedData =
-        [...STARTER_CHALLENGES];
-
-
-      saveDB(
-        updatedData
-      );
-
-
-      return updatedData;
-
-    }
-
-
-    return storedData;
 
   } catch (error) {
 
     console.warn(
-      "Mission database could not be loaded. Using starter data.",
+      "Local Mission database unavailable:",
       error
     );
 
+  }
 
-    return [...STARTER_CHALLENGES];
+
+  // FINAL FALLBACK:
+  // starter-data.js
+
+  return Array.isArray(STARTER_CHALLENGES)
+    ? [...STARTER_CHALLENGES]
+    : [];
+
+}
+
+
+// =============================================
+// LOAD MISSIONS FROM SUPABASE
+// =============================================
+
+async function loadMissionsFromSupabase() {
+
+  if (!supabaseClient) {
+
+    console.warn(
+      "Supabase unavailable — using fallback Mission data."
+    );
+
+    return false;
+
+  }
+
+
+  try {
+
+    const {
+      data,
+      error
+    } = await supabaseClient
+      .from("missions")
+      .select("id, category, difficulty, text")
+      .eq("active", true)
+      .order("id", {
+        ascending: true
+      });
+
+
+    if (error) {
+
+      throw error;
+
+    }
+
+
+    if (
+      Array.isArray(data) &&
+      data.length > 0
+    ) {
+
+      missionCache = data;
+
+
+      console.log(
+        `Loaded ${missionCache.length} Missions from Supabase.`
+      );
+
+
+      return true;
+
+    }
+
+
+    console.warn(
+      "Supabase returned no Missions — using fallback data."
+    );
+
+
+    return false;
+
+  } catch (error) {
+
+    console.warn(
+      "Could not load Missions from Supabase:",
+      error.message
+    );
+
+
+    return false;
 
   }
 
@@ -481,6 +553,22 @@ if (
       SUPABASE_PUBLISHABLE_KEY
     );
 
+// =============================================
+// LOAD CENTRAL MISSION DATABASE
+// =============================================
+
+loadMissionsFromSupabase()
+  .then(success => {
+
+    if (success) {
+
+      console.log(
+        "Central Mission database ready."
+      );
+
+    }
+
+  });
 
   // Restore existing login session
 

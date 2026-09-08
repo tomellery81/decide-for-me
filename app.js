@@ -578,24 +578,7 @@ if (
       SUPABASE_PUBLISHABLE_KEY
     );
 
-// =============================================
-// LOAD CENTRAL MISSION DATABASE
-// =============================================
-
-loadMissionsFromSupabase()
-  .then(success => {
-
-    if (success) {
-
-      console.log(
-        "Central Mission database ready."
-      );
-
-    }
-
-  });
-
-  // Restore existing login session
+// Restore existing login session
 
   supabaseClient.auth
   .getSession()

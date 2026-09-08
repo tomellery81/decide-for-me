@@ -1569,3 +1569,127 @@ footer button{
   .btn{width:100%}
   .actions{width:100%}
 }
+
+/* =============================================
+   GLOBAL APP MESSAGES / ERROR HANDLING
+   ============================================= */
+
+.app-message-modal{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:grid;
+  place-items:center;
+  padding:20px;
+  background:#000;
+  animation:messageFadeIn .18s ease;
+}
+
+.app-message-modal.closing{
+  animation:messageFadeOut .18s ease forwards;
+}
+
+.app-message-card{
+  width:min(460px,100%);
+  padding:32px 28px;
+  text-align:center;
+  background:#000;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:22px;
+  box-shadow:0 30px 100px rgba(0,0,0,.8);
+}
+
+.app-message-icon{
+  width:58px;
+  height:58px;
+  margin:0 auto 16px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  font-size:30px;
+  font-weight:900;
+  border:2px solid var(--cyan);
+  color:var(--cyan);
+}
+
+.app-message-type{
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:2px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+.app-message-card h3{
+  margin:0 0 12px;
+  font-size:28px;
+  letter-spacing:-1px;
+}
+
+.app-message-card p{
+  font-size:15px;
+  color:#b9c5cd;
+  margin:0 auto 24px;
+}
+
+.app-message-card .btn{
+  min-width:180px;
+}
+
+
+/* Error */
+
+.app-message-modal.error .app-message-icon{
+  border-color:var(--pink);
+  color:var(--pink);
+}
+
+
+/* Warning */
+
+.app-message-modal.warning .app-message-icon{
+  border-color:var(--yellow);
+  color:var(--yellow);
+}
+
+
+/* Success */
+
+.app-message-modal.success .app-message-icon{
+  border-color:var(--green);
+  color:var(--green);
+}
+
+
+/* Info */
+
+.app-message-modal.info .app-message-icon{
+  border-color:var(--cyan);
+  color:var(--cyan);
+}
+
+
+@keyframes messageFadeIn{
+
+  from{
+    opacity:0;
+  }
+
+  to{
+    opacity:1;
+  }
+
+}
+
+
+@keyframes messageFadeOut{
+
+  from{
+    opacity:1;
+  }
+
+  to{
+    opacity:0;
+  }
+
+}

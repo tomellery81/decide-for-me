@@ -541,6 +541,10 @@ async function recordHistory(
       crypto?.randomUUID?.() ||
       "history_" + Date.now(),
 
+      authorId:
+    currentUser?.id || null,
+
+  validatedBy: [],
 
     user_id:
       currentUser?.id || null,
@@ -2728,6 +2732,71 @@ function wallPostHTML(post) {
     post.difficulty;
 
 
+  const userId =
+    currentUser?.id;
+
+
+  const isOwnPost =
+    userId &&
+    post.authorId &&
+    userId === post.authorId;
+
+
+  const hasValidated =
+    userId &&
+    Array.isArray(post.validatedBy) &&
+    post.validatedBy.includes(userId);
+
+
+  let validationButton = "";
+
+
+  if (isOwnPost) {
+
+    validationButton =
+      `
+        <button
+          class="like-button"
+          disabled
+          title="You cannot validate your own Mission">
+
+          ♥ ${post.likes || 0}
+          YOUR MISSION
+
+        </button>
+      `;
+
+  } else if (hasValidated) {
+
+    validationButton =
+      `
+        <button
+          class="like-button"
+          disabled
+          title="You have already validated this Mission">
+
+          ✓ VALIDATED
+
+        </button>
+      `;
+
+  } else {
+
+    validationButton =
+      `
+        <button
+          class="like-button"
+          onclick="likePost('${post.id}')">
+
+          ♥ ${post.likes || 0}
+          VALIDATE
+
+        </button>
+      `;
+
+  }
+
+
   let proofHTML = "";
 
 
@@ -2801,14 +2870,7 @@ function wallPostHTML(post) {
 
       <div class="wall-post-bottom">
 
-        <button
-          class="like-button"
-          onclick="likePost('${post.id}')">
-
-          ♥ ${post.likes || 0}
-          VALIDATIONS
-
-        </button>
+        ${validationButton}
 
         <small>
           ${new Date(
@@ -2830,6 +2892,19 @@ function wallPostHTML(post) {
 
 function likePost(postId) {
 
+  // A user must be signed in to validate
+
+  if (!currentUser?.id) {
+
+    alert(
+      "Sign in to validate Missions."
+    );
+
+    return;
+
+  }
+
+
   const posts =
     getWallPosts();
 
@@ -2844,8 +2919,65 @@ function likePost(postId) {
   if (!post) return;
 
 
+  const userId =
+    currentUser.id;
+
+
+  // A user cannot validate their own post
+
+  if (
+    post.authorId &&
+    post.authorId === userId
+  ) {
+
+    alert(
+      "You cannot validate your own Mission."
+    );
+
+    return;
+
+  }
+
+
+  // Ensure validatedBy exists for older posts
+
+  if (
+    !Array.isArray(
+      post.validatedBy
+    )
+  ) {
+
+    post.validatedBy = [];
+
+  }
+
+
+  // A user can only validate once
+
+  if (
+    post.validatedBy.includes(
+      userId
+    )
+  ) {
+
+    alert(
+      "You have already validated this Mission."
+    );
+
+    return;
+
+  }
+
+
+  // Record validation
+
+  post.validatedBy.push(
+    userId
+  );
+
+
   post.likes =
-    (post.likes || 0) + 1;
+    post.validatedBy.length;
 
 
   // Reward at 10 validations

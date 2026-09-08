@@ -311,28 +311,70 @@ function db() {
 
   try {
 
-    return JSON.parse(
-      localStorage.getItem("dfm_challenge_db")
-    ) || [...STARTER_CHALLENGES];
+    const storedData = JSON.parse(
+      localStorage.getItem(
+        "dfm_challenge_db"
+      )
+    );
 
-  } catch {
+
+    // If there is no local database,
+    // use the starter Mission database.
+
+    if (
+      !Array.isArray(storedData) ||
+      storedData.length === 0
+    ) {
+
+      return [...STARTER_CHALLENGES];
+
+    }
+
+
+    // DATABASE VERSION CHECK
+    // If the local database is smaller than
+    // the current starter database, automatically
+    // upgrade it to the latest starter data.
+
+    if (
+      Array.isArray(STARTER_CHALLENGES) &&
+      STARTER_CHALLENGES.length > storedData.length
+    ) {
+
+      console.log(
+        `Mission database update detected: ${storedData.length} → ${STARTER_CHALLENGES.length}`
+      );
+
+
+      const updatedData =
+        [...STARTER_CHALLENGES];
+
+
+      saveDB(
+        updatedData
+      );
+
+
+      return updatedData;
+
+    }
+
+
+    return storedData;
+
+  } catch (error) {
+
+    console.warn(
+      "Mission database could not be loaded. Using starter data.",
+      error
+    );
+
 
     return [...STARTER_CHALLENGES];
 
   }
 
 }
-
-
-function saveDB(data) {
-
-  localStorage.setItem(
-    "dfm_challenge_db",
-    JSON.stringify(data)
-  );
-
-}
-
 
 // =============================================
 // MISSION NUMBERING

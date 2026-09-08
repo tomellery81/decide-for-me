@@ -306,10 +306,8 @@ function shuffle(array) {
 // =============================================
 // LOCAL MISSION DATABASE
 // =============================================
-
 // =============================================
 // MISSION DATABASE
-// Supabase primary + local/starter fallback
 // =============================================
 
 let missionCache = [];
@@ -317,9 +315,7 @@ let missionCache = [];
 
 function db() {
 
-  // PRIMARY SOURCE:
-  // Missions loaded from Supabase
-
+  // Primary source: Supabase missions
   if (
     Array.isArray(missionCache) &&
     missionCache.length > 0
@@ -330,8 +326,7 @@ function db() {
   }
 
 
-  // FALLBACK:
-  // Existing local Mission database
+  // Fallback: local browser database
 
   try {
 
@@ -361,8 +356,7 @@ function db() {
   }
 
 
-  // FINAL FALLBACK:
-  // starter-data.js
+  // Final fallback: starter data
 
   return Array.isArray(STARTER_CHALLENGES)
     ? [...STARTER_CHALLENGES]
@@ -390,16 +384,14 @@ async function loadMissionsFromSupabase() {
 
   try {
 
-    const {
-      data,
-      error
-    } = await supabaseClient
-      .from("missions")
-      .select("id, category, difficulty, text")
-      .eq("active", true)
-      .order("id", {
-        ascending: true
-      });
+    const { data, error } =
+      await supabaseClient
+        .from("missions")
+        .select("id, category, difficulty, text")
+        .eq("active", true)
+        .order("id", {
+          ascending: true
+        });
 
 
     if (error) {
@@ -416,11 +408,9 @@ async function loadMissionsFromSupabase() {
 
       missionCache = data;
 
-
       console.log(
         `Loaded ${missionCache.length} Missions from Supabase.`
       );
-
 
       return true;
 
@@ -431,7 +421,6 @@ async function loadMissionsFromSupabase() {
       "Supabase returned no Missions — using fallback data."
     );
 
-
     return false;
 
   } catch (error) {
@@ -441,13 +430,11 @@ async function loadMissionsFromSupabase() {
       error.message
     );
 
-
     return false;
 
   }
 
 }
-
 // =============================================
 // MISSION NUMBERING
 // =============================================
@@ -573,26 +560,41 @@ loadMissionsFromSupabase()
   // Restore existing login session
 
   supabaseClient.auth
-    .getSession()
-    .then(({ data, error }) => {
+  .getSession()
+  .then(async ({ data, error }) => {
 
-      if (error) {
+    if (error) {
 
-        console.warn(
-          "Session restore failed:",
-          error.message
-        );
+      console.warn(
+        "Session restore failed:",
+        error.message
+      );
 
-      }
-
-
-      currentUser =
-        data?.session?.user || null;
+    }
 
 
-      refreshAuthUI();
+    currentUser =
+      data?.session?.user || null;
 
-    })
+
+    refreshAuthUI();
+
+
+    // Load central Mission database
+    if (currentUser) {
+
+      await loadMissionsFromSupabase();
+
+    } else {
+
+      console.warn(
+        "No authenticated session yet — using fallback Mission data."
+      );
+
+    }
+
+  })
+
     .catch(error => {
 
       console.warn(
@@ -605,17 +607,29 @@ loadMissionsFromSupabase()
 
   // Listen for future authentication changes
 
-  supabaseClient.auth.onAuthStateChange(
-    (_event, session) => {
+ supabaseClient.auth.onAuthStateChange(
+  async (_event, session) => {
 
-      currentUser =
-        session?.user || null;
+    currentUser =
+      session?.user || null;
+
+    refreshAuthUI();
 
 
-      refreshAuthUI();
+    // Load Missions once authentication is available
+
+    if (currentUser) {
+
+      await loadMissionsFromSupabase();
+
+    } else {
+
+      missionCache = [];
 
     }
-  );
+
+  }
+);
 
 } else {
 

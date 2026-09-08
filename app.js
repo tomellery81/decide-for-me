@@ -71,6 +71,212 @@ let state = {
 
 const $ = id => document.getElementById(id);
 
+// =============================================
+// GLOBAL ERROR HANDLING
+// =============================================
+
+function showAppMessage({
+  title = "FATE HAS SOMETHING TO SAY",
+  message = "",
+  type = "error",
+  actionLabel = "OK",
+  action = null
+} = {}) {
+
+  // Remove an existing message first
+
+  document
+    .getElementById("appMessageModal")
+    ?.remove();
+
+
+  const modal =
+    document.createElement("div");
+
+
+  modal.id =
+    "appMessageModal";
+
+
+  modal.className =
+    `app-message-modal ${type}`;
+
+
+  modal.innerHTML =
+    `
+      <div class="app-message-card">
+
+        <div class="app-message-icon">
+          ${
+            type === "success"
+              ? "✓"
+              : type === "warning"
+                ? "!"
+                : type === "info"
+                  ? "i"
+                  : "×"
+          }
+        </div>
+
+        <div class="app-message-type">
+          ${type.toUpperCase()}
+        </div>
+
+        <h3>${esc(title)}</h3>
+
+        <p>${esc(message)}</p>
+
+        <button
+          class="btn primary"
+          id="appMessageAction">
+
+          ${esc(actionLabel)}
+
+        </button>
+
+      </div>
+    `;
+
+
+  document.body.appendChild(
+    modal
+  );
+
+
+  const close = () => {
+
+    modal.classList.add("closing");
+
+
+    setTimeout(() => {
+
+      modal.remove();
+
+    }, 180);
+
+  };
+
+
+  $("appMessageAction")
+    ?.addEventListener(
+      "click",
+      () => {
+
+        close();
+
+
+        if (
+          typeof action === "function"
+        ) {
+
+          action();
+
+        }
+
+      }
+    );
+
+}
+
+
+function showError(
+  title,
+  message,
+  actionLabel = "OK",
+  action = null
+) {
+
+  showAppMessage({
+    title,
+    message,
+    type: "error",
+    actionLabel,
+    action
+  });
+
+}
+
+
+function showWarning(
+  title,
+  message,
+  actionLabel = "OK",
+  action = null
+) {
+
+  showAppMessage({
+    title,
+    message,
+    type: "warning",
+    actionLabel,
+    action
+  });
+
+}
+
+
+function showInfo(
+  title,
+  message,
+  actionLabel = "OK",
+  action = null
+) {
+
+  showAppMessage({
+    title,
+    message,
+    type: "info",
+    actionLabel,
+    action
+  });
+
+}
+
+
+function showSuccess(
+  title,
+  message,
+  actionLabel = "CONTINUE",
+  action = null
+) {
+
+  showAppMessage({
+    title,
+    message,
+    type: "success",
+    actionLabel,
+    action
+  });
+
+}
+
+
+// Catch unexpected JavaScript errors
+
+window.addEventListener(
+  "error",
+  event => {
+
+    console.error(
+      "Unexpected application error:",
+      event.error
+    );
+
+  }
+);
+
+
+window.addEventListener(
+  "unhandledrejection",
+  event => {
+
+    console.error(
+      "Unhandled promise rejection:",
+      event.reason
+    );
+
+  }
+);
 
 function esc(s) {
 

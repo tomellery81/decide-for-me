@@ -602,20 +602,43 @@ async function recordHistory(
     currentUser
   ) {
 
-    const { error } =
-      await supabaseClient
-        .from("challenge_history")
-        .insert(row);
+try {
+
+  const { error } =
+    await supabaseClient
+      .from("challenge_history")
+      .insert(row);
 
 
-    if (error) {
+  if (error) {
 
-      console.warn(
-        "Could not save history to Supabase:",
-        error.message
-      );
+    console.error(
+      "Could not save history to Supabase:",
+      error
+    );
 
-    }
+
+    showWarning(
+      "MISSION SAVED LOCALLY",
+      "We couldn't sync this Mission to your account right now. Your progress has been safely saved on this device."
+    );
+
+  }
+
+} catch (error) {
+
+  console.error(
+    "History save failed:",
+    error
+  );
+
+
+  showWarning(
+    "FATE IS TEMPORARILY SILENT",
+    "We couldn't reach the database. Your progress has been saved locally and can be synced later."
+  );
+
+}
 
   }
 
@@ -931,9 +954,12 @@ function chooseDifficulty(difficulty) {
 
   if (state.items.length < 20) {
 
-    alert(
-      "This category needs at least 20 Missions."
-    );
+showWarning(
+  "FATE HIT A DEAD END",
+  "There are not enough Missions in this category to fill the Wheel. Please choose another path.",
+  "CHOOSE AGAIN",
+  () => go("difficulty")
+);
 
     return;
 
@@ -1433,9 +1459,10 @@ function reroll() {
     state.rerolls <= 0
   ) {
 
-    alert(
-      "Fate has spoken. No rerolls remain."
-    );
+showWarning(
+  "FATE HAS SPOKEN",
+  "No rerolls remain. This is the Mission Fate has chosen for you."
+);
 
     return;
 
@@ -1795,15 +1822,15 @@ async function failMission() {
   );
 
 
-  alert(
-    "Mission failed. Fate will give you another chance."
-  );
+showWarning(
+  "MISSION FAILED",
+  "Not every encounter with Fate ends in victory. Another Mission will be waiting.",
+  "RETURN HOME",
+  () => go("home")
+);
 
 
   state.mission = null;
-
-
-  go("home");
 
 }
 
@@ -1935,9 +1962,10 @@ function handleProofFile(event) {
     !file.type.startsWith("image/")
   ) {
 
-    alert(
-      "Please select an image file for Photo Proof."
-    );
+showWarning(
+  "PROOF REJECTED",
+  "Photo Proof requires an image file. Please choose a valid image."
+);
 
     event.target.value = "";
 
@@ -1951,9 +1979,10 @@ function handleProofFile(event) {
     !file.type.startsWith("video/")
   ) {
 
-    alert(
-      "Please select a video file for Video Proof."
-    );
+showWarning(
+  "PROOF REJECTED",
+  "Video Proof requires a video file. Please choose a valid video."
+);
 
     event.target.value = "";
 
@@ -3655,6 +3684,8 @@ async function authSignIn() {
     "Signing in...";
 
 
+try {
+
   const {
     data,
     error
@@ -3664,6 +3695,54 @@ async function authSignIn() {
         email,
         password
       });
+
+
+  if (error) {
+
+    console.error(
+      "Sign in error:",
+      error
+    );
+
+
+    $("authMessage").textContent =
+      "We couldn't sign you in. Please check your email and password.";
+
+    return;
+
+  }
+
+
+  currentUser =
+    data?.user ||
+    null;
+
+
+  refreshAuthUI();
+
+
+  $("authMessage").textContent =
+    "";
+
+
+  closeAuth();
+
+
+  go("profile");
+
+
+} catch (error) {
+
+  console.error(
+    "Authentication connection error:",
+    error
+  );
+
+
+  $("authMessage").textContent =
+    "Fate couldn't reach the server. Check your connection and try again.";
+
+}
 
 
   if (error) {

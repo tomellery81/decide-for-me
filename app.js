@@ -3406,6 +3406,7 @@ function renderAdmin() {
 }
 
 
+
 // =============================================
 // ADD MISSION MODAL
 // =============================================
@@ -4405,6 +4406,464 @@ acceptMission =
 
   };
 
+// =============================================
+// ADMIN WALL MODERATION
+// =============================================
+
+let currentAdminTab = "missions";
+
+
+// =============================================
+// SWITCH ADMIN TABS
+// =============================================
+
+function switchAdminTab(tab) {
+
+  currentAdminTab = tab;
+
+  const missionsPanel = $("adminMissionsPanel");
+  const wallPanel = $("adminWallPanel");
+
+  const missionsTab = $("adminMissionsTab");
+  const wallTab = $("adminWallTab");
+
+
+  if (missionsPanel) {
+    missionsPanel.classList.toggle(
+      "hidden",
+      tab !== "missions"
+    );
+  }
+
+
+  if (wallPanel) {
+    wallPanel.classList.toggle(
+      "hidden",
+      tab !== "wall"
+    );
+  }
+
+
+  if (missionsTab) {
+    missionsTab.classList.toggle(
+      "active",
+      tab === "missions"
+    );
+  }
+
+
+  if (wallTab) {
+    wallTab.classList.toggle(
+      "active",
+      tab === "wall"
+    );
+  }
+
+
+  if (tab === "missions") {
+    renderAdmin();
+  }
+
+
+  if (tab === "wall") {
+    renderModeration();
+  }
+
+}
+
+
+// =============================================
+// RENDER WALL MODERATION
+// =============================================
+
+function renderModeration() {
+
+  const list = $("moderationList");
+
+  if (!list) return;
+
+
+  const posts = getWallPosts();
+
+
+  const category =
+    $("moderationCategory")?.value || "all";
+
+
+  const difficulty =
+    $("moderationDifficulty")?.value || "all";
+
+
+  const search =
+    ($("moderationSearch")?.value || "")
+      .trim()
+      .toLowerCase();
+
+
+  const filtered =
+    posts.filter(post => {
+
+      const categoryMatch =
+        category === "all" ||
+        post.category === category;
+
+
+      const difficultyMatch =
+        difficulty === "all" ||
+        post.difficulty === difficulty;
+
+
+      const searchMatch =
+        !search ||
+        String(post.mission || "")
+          .toLowerCase()
+          .includes(search) ||
+        String(post.missionNumber || "")
+          .toLowerCase()
+          .includes(search) ||
+        String(post.categoryLabel || "")
+          .toLowerCase()
+          .includes(search);
+
+
+      return (
+        categoryMatch &&
+        difficultyMatch &&
+        searchMatch
+      );
+
+    });
+
+
+  if ($("moderationCount")) {
+
+    $("moderationCount").textContent =
+      `${posts.length} POST${posts.length === 1 ? "" : "S"}`;
+
+  }
+
+
+  if (!filtered.length) {
+
+    list.innerHTML = `
+      <div class="empty-history">
+        No Wall posts match these filters.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    filtered.map(post =>
+      moderationPostHTML(post)
+    ).join("");
+
+}
+
+
+// =============================================
+// BUILD MODERATION POST
+// =============================================
+
+function moderationPostHTML(post) {
+
+  const difficulty =
+    DIFF[post.difficulty]?.label ||
+    post.difficulty ||
+    "Unknown";
+
+
+  const validationCount =
+    Array.isArray(post.validatedBy)
+      ? post.validatedBy.length
+      : Number(post.likes || 0);
+
+
+  let proofHTML = `
+    <div class="moderation-proof-empty">
+      No proof attached
+    </div>
+  `;
+
+
+  if (
+    post.proof?.type === "text" &&
+    post.proof?.content
+  ) {
+
+    proofHTML = `
+      <div class="moderation-proof-text">
+        ${esc(post.proof.content)}
+      </div>
+    `;
+
+  }
+
+
+  if (
+    post.proof?.type === "photo" &&
+    post.proof?.content?.data
+  ) {
+
+    proofHTML = `
+      <img
+        class="moderation-proof-image"
+        src="${post.proof.content.data}"
+        alt="Mission proof">
+    `;
+
+  }
+
+
+  if (
+    post.proof?.type === "video" &&
+    post.proof?.content?.data
+  ) {
+
+    proofHTML = `
+      <video
+        class="moderation-proof-video"
+        src="${post.proof.content.data}"
+        controls>
+      </video>
+    `;
+
+  }
+
+
+  let postedDate = "Unknown date";
+
+
+  if (post.createdAt) {
+
+    try {
+
+      postedDate =
+        new Date(
+          post.createdAt
+        ).toLocaleString();
+
+    } catch {
+
+      postedDate =
+        "Unknown date";
+
+    }
+
+  }
+
+
+  return `
+    <article class="moderation-post">
+
+      <div class="moderation-post-header">
+
+        <div>
+
+          <div class="moderation-meta">
+            ${esc(post.categoryEmoji || "")}
+            ${esc(post.categoryLabel || post.category || "")}
+            ·
+            ${esc(difficulty)}
+          </div>
+
+          <div class="moderation-number">
+            ${esc(post.missionNumber || "")}
+          </div>
+
+        </div>
+
+
+        <button
+          class="btn danger moderation-delete"
+          onclick="deleteWallPost('${post.id}')">
+
+          🗑 DELETE POST
+
+        </button>
+
+      </div>
+
+
+      <div class="moderation-fate-copy">
+        Fate decided I should...
+      </div>
+
+
+      <h3 class="moderation-mission">
+        ${esc(post.mission || "")}
+      </h3>
+
+
+      <div class="moderation-proof">
+        ${proofHTML}
+      </div>
+
+
+      <div class="moderation-post-footer">
+
+        <span>
+          ♥ ${validationCount}
+          VALIDATION${validationCount === 1 ? "" : "S"}
+        </span>
+
+        <span>
+          ${esc(postedDate)}
+        </span>
+
+      </div>
+
+    </article>
+  `;
+
+}
+
+
+// =============================================
+// DELETE WALL POST
+// =============================================
+
+function deleteWallPost(postId) {
+
+  const posts =
+    getWallPosts();
+
+
+  const post =
+    posts.find(
+      item =>
+        item.id === postId
+    );
+
+
+  if (!post) {
+
+    alert(
+      "This Wall post could not be found."
+    );
+
+    return;
+
+  }
+
+
+  const confirmed =
+    confirm(
+      `Delete this Wall post?\n\n"${post.mission || "Untitled Mission"}"\n\nThis action cannot be undone.`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  const updatedPosts =
+    posts.filter(
+      item =>
+        item.id !== postId
+    );
+
+
+  saveWallPosts(
+    updatedPosts
+  );
+
+
+  // Clear current-post reference
+  // if this was the post being tracked.
+
+  if (
+    localStorage.getItem(
+      "dfm_current_post"
+    ) === postId
+  ) {
+
+    localStorage.removeItem(
+      "dfm_current_post"
+    );
+
+  }
+
+
+  // Refresh both admin moderation
+  // and the public Wall.
+
+  renderModeration();
+
+  renderWall();
+
+}
+
+
+// =============================================
+// ADMIN ACCESS GUARD
+// =============================================
+
+// Replace this with your real admin email address.
+// You can add more than one if needed.
+
+const ADMIN_EMAILS = [
+  "YOUR-ADMIN-EMAIL@example.com"
+];
+
+
+function isAdmin() {
+
+  if (!currentUser?.email) {
+    return false;
+  }
+
+
+  return ADMIN_EMAILS.includes(
+    currentUser.email
+      .toLowerCase()
+  );
+
+}
+
+
+// =============================================
+// OPEN ADMIN SAFELY
+// =============================================
+
+function openAdmin() {
+
+  if (!currentUser) {
+
+    alert(
+      "Please sign in to access the Admin Console."
+    );
+
+    openAuth();
+
+    return;
+
+  }
+
+
+  if (!isAdmin()) {
+
+    alert(
+      "You do not have permission to access the Admin Console."
+    );
+
+    return;
+
+  }
+
+
+  go("admin");
+
+
+  switchAdminTab(
+    "missions"
+  );
+
+}
 
 // =============================================
 // STARTUP

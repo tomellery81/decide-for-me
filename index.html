@@ -256,24 +256,262 @@
   <button class="link" onclick="go('wall')">View The Wall</button>
 </section>
 
-<!-- ADMIN -->
+<!-- ADMIN CONSOLE -->
 <section id="admin" class="view admin">
-  <div class="admin-top"><div><div class="eyebrow">CONTENT MANAGEMENT</div><h2>Mission Manager</h2><p>Manually add, edit, delete, import or export every mission. Changes are saved automatically in this browser.</p></div>
-  <button class="btn ghost small-btn" onclick="go('home')">← PLAY GAME</button></div>
 
-  <div class="admin-tools">
-    <button class="btn mini" onclick="exportDB()">⇩ EXPORT DATABASE</button>
-    <label class="btn mini upload">⇧ IMPORT DATABASE<input type="file" accept=".json" onchange="importDB(event)"></label>
-    <button class="btn mini danger-btn" onclick="resetDB()">RESET TO STARTER DATA</button>
+  <div class="admin-top">
+
+    <div>
+      <div class="eyebrow">ADMIN CONSOLE</div>
+      <h2>Control Fate</h2>
+      <p>
+        Manage Missions and moderate content posted to The Wall.
+      </p>
+    </div>
+
+    <button
+      class="btn ghost small-btn"
+      onclick="go('home')">
+
+      ← PLAY GAME
+
+    </button>
+
   </div>
 
-  <div class="admin-summary" id="dbSummary"></div>
-  <div class="filters">
-    <select id="filterCategory" onchange="renderAdmin()"></select>
-    <select id="filterDifficulty" onchange="renderAdmin()"></select>
-    <input id="searchChallenges" placeholder="Search missions..." oninput="renderAdmin()">
+
+  <!-- ADMIN TABS -->
+
+  <div class="admin-tabs">
+
+    <button
+      class="admin-tab active"
+      id="adminMissionsTab"
+      onclick="switchAdminTab('missions')">
+
+      🎲 MISSION MANAGER
+
+    </button>
+
+    <button
+      class="admin-tab"
+      id="adminWallTab"
+      onclick="switchAdminTab('wall')">
+
+      🔥 WALL MODERATION
+
+    </button>
+
   </div>
-  <div id="challengeList" class="mission-list"></div>
+
+
+  <!-- =============================================
+       MISSION MANAGER
+       ============================================= -->
+
+  <div
+    id="adminMissionsPanel"
+    class="admin-panel">
+
+    <div class="admin-tools">
+
+      <button
+        class="btn mini"
+        onclick="exportDB()">
+
+        ⇩ EXPORT DATABASE
+
+      </button>
+
+      <label class="btn mini upload">
+
+        ⇧ IMPORT DATABASE
+
+        <input
+          type="file"
+          accept=".json"
+          onchange="importDB(event)">
+
+      </label>
+
+      <button
+        class="btn mini danger-btn"
+        onclick="resetDB()">
+
+        RESET TO STARTER DATA
+
+      </button>
+
+    </div>
+
+
+    <div
+      class="admin-summary"
+      id="dbSummary">
+
+    </div>
+
+
+    <div class="filters">
+
+      <select
+        id="filterCategory"
+        onchange="renderAdmin()">
+
+      </select>
+
+      <select
+        id="filterDifficulty"
+        onchange="renderAdmin()">
+
+      </select>
+
+      <input
+        id="searchChallenges"
+        placeholder="Search Missions..."
+        oninput="renderAdmin()">
+
+    </div>
+
+
+    <div
+      id="challengeList"
+      class="mission-list">
+
+    </div>
+
+  </div>
+
+
+  <!-- =============================================
+       WALL MODERATION
+       ============================================= -->
+
+  <div
+    id="adminWallPanel"
+    class="admin-panel hidden">
+
+
+    <div class="moderation-header">
+
+      <div>
+
+        <div class="moderation-label">
+          COMMUNITY MODERATION
+        </div>
+
+        <h3>
+          The Wall
+        </h3>
+
+        <p>
+          Review public Mission posts and remove anything
+          that does not belong.
+        </p>
+
+      </div>
+
+
+      <div
+        class="moderation-count"
+        id="moderationCount">
+
+        0 POSTS
+
+      </div>
+
+    </div>
+
+
+    <!-- MODERATION FILTERS -->
+
+    <div class="moderation-filters">
+
+      <select
+        id="moderationCategory"
+        onchange="renderModeration()">
+
+        <option value="all">
+          ALL CATEGORIES
+        </option>
+
+        <option value="relationships">
+          ❤️ RELATIONSHIPS
+        </option>
+
+        <option value="finance">
+          💰 FINANCE
+        </option>
+
+        <option value="work">
+          💼 WORK
+        </option>
+
+        <option value="entertainment">
+          🎉 ENTERTAINMENT
+        </option>
+
+        <option value="life-admin">
+          📋 LIFE ADMIN
+        </option>
+
+        <option value="chores">
+          🧹 CHORES
+        </option>
+
+      </select>
+
+
+      <select
+        id="moderationDifficulty"
+        onchange="renderModeration()">
+
+        <option value="all">
+          ALL DIFFICULTIES
+        </option>
+
+        <option value="easy">
+          EASY
+        </option>
+
+        <option value="normal">
+          NORMAL
+        </option>
+
+        <option value="mission">
+          MISSION
+        </option>
+
+        <option value="brutal">
+          BRUTAL
+        </option>
+
+        <option value="wild">
+          WILD CARD
+        </option>
+
+      </select>
+
+
+      <input
+        id="moderationSearch"
+        placeholder="Search Wall posts..."
+        oninput="renderModeration()">
+
+    </div>
+
+
+    <!-- WALL MODERATION LIST -->
+
+    <div
+      id="moderationList"
+      class="moderation-list">
+
+    </div>
+
+
+  </div>
+
 </section>
 </main>
 

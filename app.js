@@ -383,58 +383,54 @@ async function loadMissionsFromSupabase() {
 
 
   try {
+// Fetch all Missions in batches.
+// Supabase defaults to a maximum of 1,000 rows per request.
 
-    const { data, error } =
-      await supabaseClient
-        .from("missions")
-        .select("id, category, difficulty, text")
-        .eq("active", true)
-        .order("id", {
-          ascending: true
-        });
+const batchSize = 1000;
+let allMissions = [];
+let from = 0;
+let keepLoading = true;
 
+while (keepLoading) {
 
-    if (error) {
-
-      throw error;
-
-    }
-
-
-    if (
-      Array.isArray(data) &&
-      data.length > 0
-    ) {
-
-      missionCache = data;
-
-      console.log(
-        `Loaded ${missionCache.length} Missions from Supabase.`
+  const { data, error } =
+    await supabaseClient
+      .from("missions")
+      .select("id, category, difficulty, text")
+      .eq("active", true)
+      .order("id", {
+        ascending: true
+      })
+      .range(
+        from,
+        from + batchSize - 1
       );
 
-      return true;
+  if (error) {
+    throw error;
+  }
 
+  if (Array.isArray(data)) {
+
+    allMissions = allMissions.concat(data);
+
+    if (data.length < batchSize) {
+      keepLoading = false;
+    } else {
+      from += batchSize;
     }
 
-
-    console.warn(
-      "Supabase returned no Missions — using fallback data."
-    );
-
-    return false;
-
-  } catch (error) {
-
-    console.warn(
-      "Could not load Missions from Supabase:",
-      error.message
-    );
-
-    return false;
-
+  } else {
+    keepLoading = false;
   }
 
 }
+
+
+// Use the complete Mission list
+
+const data = allMissions;
+    
 // =============================================
 // MISSION NUMBERING
 // =============================================
